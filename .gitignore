@@ -1,0 +1,9 @@
+.idea
+target/
+.horizon/
+Cargo.lock
+__pycache__/
+*.pyc
+
+# Generated icon pack (rebuilt by scripts/pack_resources.py, bundled by package.py)
+/mixins/voice_chat/data/voice_chat-icons.zip
