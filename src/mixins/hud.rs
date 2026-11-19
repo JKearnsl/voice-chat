@@ -1,11 +1,10 @@
-// The voice chat's HUD: real player faces top-left and voice status bottom-left.
 fn voicechat_hud(
     game: &mut crate::game::Game<'_>,
     batch: &mut horizon_client::hud::HudBatch,
     corners: &mut horizon_client::extras_hud::Corners,
 ) {
     use horizon_client::extras::Corner;
-    use voicechat_engine as vc;
+    use voice_chat::engine as vc;
     if !game.native_on(vc::ID) {
         return;
     }

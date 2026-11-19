@@ -1,0 +1,51 @@
+id = "voice_chat"
+name = "Voice Chat"
+version = "1.0.0"
+description = "An unofficial Simple Voice Chat client for Horizon: proximity voice, groups, push to talk, voice activation, per-source volumes, and a native in-game interface."
+authors = ["JKearnsl"]
+license = "MIT"
+api = "0.2"
+side = "client"
+capabilities = ["registries"]
+
+[native]
+game = "26.3"
+horizon = "0b14f8acfd97fa2c750e42795249dcc981178ca4"
+mixins = "e59da9094f0c2fdda6c627fe9eff22dec6a906f0"
+
+[[native.mixin]]
+id = "tick"
+target = "horizon_client::game::remote::Game<'_>::tick_remote"
+kind = "HEAD"
+helper = "src/mixins/tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+[[native.mixin]]
+id = "hud"
+target = "horizon_client::game::native_hooks::Game<'_>::native_hud"
+kind = "HEAD"
+helper = "src/mixins/hud.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "batch", ty = "&mut horizon_client::hud::HudBatch", value = "&mut *batch" },
+  { name = "corners", ty = "&mut horizon_client::extras_hud::Corners", value = "&mut *corners" },
+]
+
+[[native.mixin]]
+id = "name_tag"
+target = "horizon_client::game::names::Game<'_>::name_tag_quads"
+kind = "HEAD"
+helper = "src/mixins/name_tag.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "o", ty = "glam::DVec3", value = "o" },
+  { name = "lines", ty = "&[(horizon_client::text::Text, f64)]", value = "lines" },
+  { name = "text_alpha", ty = "u32", value = "text_alpha" },
+  { name = "background", ty = "bool", value = "background" },
+  { name = "text_layer", ty = "u32", value = "text_layer" },
+  { name = "light", ty = "u32", value = "light" },
+  { name = "unit", ty = "f32", value = "unit" },
+  { name = "out", ty = "&mut Vec<horizon_client::mesher::Vertex>", value = "&mut *out" },
+]

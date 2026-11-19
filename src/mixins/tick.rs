@@ -1,8 +1,5 @@
-// Each client tick on a server: where the player and the other players are,
-// then the payloads the voice chat has for the server, its settings and its
-// chat lines.
 fn voicechat_tick(game: &mut crate::game::Game<'_>) {
-    use voicechat_engine as vc;
+    use voice_chat::engine as vc;
     let Some(r) = game.remote.as_ref() else {
         return;
     };
@@ -29,17 +26,11 @@ fn voicechat_tick(game: &mut crate::game::Game<'_>) {
         players,
         redirect: horizon_protocol::server_redirect,
     };
-    let done = {
-        let game = &*game;
-        vc::tick(Some(world), &|key| game.native_setting(vc::ID, key))
-    };
+    let done = vc::tick(Some(world), &voice_chat::config::get);
     for (channel, data) in done.payloads {
         game.send(horizon_protocol::packets::play::Serverbound::CustomPayload(
             horizon_protocol::packets::configuration::CustomPayload { channel, data },
         ));
-    }
-    for (key, value) in done.store {
-        game.native_set_setting(vc::ID, &key, &value);
     }
     for line in done.chat {
         game.native_chat(&line);

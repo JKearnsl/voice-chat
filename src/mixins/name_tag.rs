@@ -9,7 +9,7 @@ fn voicechat_name_tag(
     unit: f32,
     out: &mut Vec<horizon_client::mesher::Vertex>,
 ) {
-    use voicechat_engine as vc;
+    use voice_chat::engine as vc;
     if !game.native_on(vc::ID) {
         return;
     }

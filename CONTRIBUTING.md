@@ -14,18 +14,15 @@ Keep discussions respectful and focused on technical evidence.
 - Follow the existing Rust structure and naming. Write comments only for non-obvious constraints or reasoning.
 - Add or update tests for behavioural changes. Include screenshots for UI changes.
 - Update translations and documentation when the user-facing behaviour changes.
-- Do not commit build output, `Cargo.lock`, generated resource packs, or unrelated files.
+- Do not commit build output or unrelated files.
 - Verify the pinned Horizon and mixin revisions when changing compatibility code.
 
 Run the relevant checks before submitting:
 
 ```sh
-cd mixins/voice_chat/engine
 cargo test --offline
-cargo build --offline
-rm -f Cargo.lock
-cd ../../..
-python3 scripts/package.py
+cargo horizon-mod check
+cargo horizon-mod build
 ```
 
 State clearly in the PR if something remains untested in the running game.

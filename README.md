@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icon.png" alt="Voice Chat microphone icon" width="128">
+  <img src="icon.png" alt="Voice Chat microphone icon" width="128">
 </p>
 
 <h1 align="center">Voice Chat</h1>
@@ -24,9 +24,9 @@ Talk with players on compatible servers through proximity voice, private groups,
 
 ## Installation
 
-1. Download the `.hnmod` package from the project's releases.
+1. Download the `.hmod` package from the project's releases.
 2. Add it to the instance as a native mod in Horizon Launcher.
-3. Rebuild the instance. The bundled icon resource pack is installed and enabled automatically.
+3. Rebuild the instance. The bundled icons are loaded from the mod's assets automatically.
 4. Join a server running Simple Voice Chat and press **V** to open the menu.
 
 The server's voice UDP port must be reachable. A server without Simple Voice Chat cannot provide voice connectivity.
@@ -36,8 +36,8 @@ The server's voice UDP port must be reachable. A server without Simple Voice Cha
 The native package currently targets:
 
 - Game: **26.3**
-- Horizon revision: `c9d474dd9116e84c243f8992d75c11314df56f06`
-- Horizon Mixins revision: `ddd9700b21997c95d95ac6ee5ecafe3830cf622a`
+- Horizon revision: `0b14f8acfd97fa2c750e42795249dcc981178ca4`
+- Horizon Mixins revision: `e59da9094f0c2fdda6c627fe9eff22dec6a906f0`
 - Simple Voice Chat protocol versions: **20 and 21**
 
 Native compatibility is pinned because the mod currently accesses game internals beyond Horizon's stable hook points. Update and test these pins before targeting another Horizon revision. See `compatibility.json` for the current values.
@@ -47,28 +47,28 @@ Native compatibility is pinned because the mod currently accesses game internals
 Run the engine checks:
 
 ```sh
-cd mixins/voice_chat/engine
 cargo test --offline
-cargo build --offline
-rm -f Cargo.lock
+cargo horizon-mod check
 ```
 
 From the project root, build the package:
 
 ```sh
-python3 scripts/package.py
+cargo horizon-mod build
 ```
 
-The resulting package is written to `target/voice_chat-x.x.x.hnmod`. Use `python3 scripts/package.py --install` to also copy it into Horizon's native mods directory.
+The resulting package is written to `target/horizon-mod/voice_chat.hmod`.
 
 ## Contributing
 
-Open an issue before starting a change, then link it from the pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution, verification, and AI-assisted development rules.
+Open an issue before starting a change, then link it from the pull request.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution, verification,
+and AI-assisted development rules.
 
 ## Licence
 
 Project code and original assets are available under the [MIT Licence](LICENSE).
 
-The vendored `opus-rs` code is covered by its BSD-3-Clause licence in `mixins/voice_chat/engine/COPYING`.
+The vendored `opus-rs` code is covered by its BSD-3-Clause licence in `OPUS_COPYING`.
 
 Simple Voice Chat is copyright Max Henkel and marked All Rights Reserved. This project is unofficial, is not affiliated with Max Henkel, and does not include Simple Voice Chat's original assets. The name is used only to describe protocol compatibility.

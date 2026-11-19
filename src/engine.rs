@@ -18,8 +18,8 @@ use i18n::{fmt, tr};
 
 // The pure-Rust Opus codec (vendored `opus-rs`, BSD-3-Clause), inlined as a
 // module because Horizon's mod build forbids path/extra dependencies. See
-// `src/opus_rs/COPYING`.
-mod opus_rs;
+// `OPUS_COPYING`.
+pub use crate::opus_rs;
 mod session;
 
 use audio::{AudioIo, Devices, MicQueue};
@@ -1024,6 +1024,26 @@ pub fn load(get: &dyn Fn(&str) -> Option<String>) {
         v.settings = Settings::load(get);
         v.apply_controls();
     }
+}
+
+/// Reloads settings changed outside the mod and applies device and connection changes.
+pub fn reload(get: &dyn Fn(&str) -> Option<String>) {
+    let mut v = voice();
+    let devices = (
+        v.settings.input_device.clone(),
+        v.settings.output_device.clone(),
+    );
+    v.settings = Settings::load(get);
+    v.apply_controls();
+    if devices
+        != (
+            v.settings.input_device.clone(),
+            v.settings.output_device.clone(),
+        )
+    {
+        v.restart_audio();
+    }
+    v.send_state();
 }
 
 /// Sets the player's language for the menu, HUD and chat, from the game's
