@@ -744,7 +744,7 @@ pub fn pvq_search(x: &[f32], y: &mut [i32], k: i32, n: usize) {
     // slices must hold n samples. In-repo callers are bounded by
     // MAX_PVQ_N; a direct call violating it would otherwise panic with an
     // unhelpful index message (or, on aarch64, read out of bounds via raw
-    // pointers) — issue #27 deep scan.
+    // pointers) – issue #27 deep scan.
     assert!(
         n <= MAX_PVQ_N && x.len() >= n && y.len() >= n,
         "pvq_search: n={} exceeds MAX_PVQ_N={} or slices too short",

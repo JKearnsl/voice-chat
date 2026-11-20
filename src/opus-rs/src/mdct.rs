@@ -289,7 +289,7 @@ impl MdctLookup {
 
         // Validate all buffer contracts up front: the pre-rotation kernels
         // read input[2*i*stride] and input[stride*(n2-1-2*i)] (raw pointers
-        // on AVX/NEON), and the TDAC stage reads window[..overlap] — failing
+        // on AVX/NEON), and the TDAC stage reads window[..overlap] – failing
         // after the FFT has run would waste the whole transform and, on SIMD
         // paths, read out of bounds instead of panicking (issue #27 deep
         // scan).

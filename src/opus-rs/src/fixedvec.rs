@@ -1,7 +1,7 @@
 //! Minimal `Vec`-like growable buffer backed by **inline fixed-size storage**.
 //!
 //! `FixedVec<T, N>` stores its elements in a `[core::mem::MaybeUninit<T>; N]` with a
-//! tracked length — no global allocator is required. It mirrors the subset of the
+//! tracked length – no global allocator is required. It mirrors the subset of the
 //! `Vec` API used throughout opus-rs (`resize`, `push`, `truncate`, `len`,
 //! indexing, and `Deref<Target = [T]>` over the *initialized* range), so it can be
 //! dropped in as a heap-free replacement field-for-field.

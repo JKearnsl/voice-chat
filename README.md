@@ -28,19 +28,19 @@ Press **V** to open the voice controls
 <details>
 <summary><strong>Settings, groups, and volume controls</strong></summary>
 
-**Settings** — select audio devices, adjust voice levels and the activation threshold, and review hotkeys.
+**Settings** – select audio devices, adjust voice levels and the activation threshold, and review hotkeys.
 
 ![Audio settings and activation meter](docs/screenshots/settings.png)
 
-**Groups** — see your current group, its members, and other available groups.
+**Groups** – see your current group, its members, and other available groups.
 
 ![Current and available voice groups](docs/screenshots/groups.png)
 
-**Create group** — set a name, an optional password, and how the group interacts with nearby players.
+**Create group** – set a name, an optional password, and how the group interacts with nearby players.
 
 ![Group creation form](docs/screenshots/create-group.png)
 
-**Player volumes** — search players and audio sources, then adjust each source with a slider.
+**Player volumes** – search players and audio sources, then adjust each source with a slider.
 
 ![Per-player and audio-source volume sliders](docs/screenshots/player-volumes.png)
 
@@ -60,7 +60,7 @@ The server's voice UDP port must be reachable. A server without Simple Voice Cha
 The native package currently targets:
 
 - Game: **26.3**
-- Horizon revision: `dd67b76ff23e28c6d8e21859df600d31572f81a0`
+- Horizon revision: `5ef7734fdd854add5efd6817178be3c988d8d050`
 - Horizon Mixins revision: `e59da9094f0c2fdda6c627fe9eff22dec6a906f0`
 - Simple Voice Chat protocol versions: **20 and 21**
 

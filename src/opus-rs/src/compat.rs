@@ -1,12 +1,12 @@
-//! no_std / std compatibility shims — zero external dependencies.
+//! no_std / std compatibility shims – zero external dependencies.
 //!
 //! Provides:
-//! * [`OnceCell`] — a dependency-free, **heap-free** lazy cell backed by a 3-state
+//! * [`OnceCell`] – a dependency-free, **heap-free** lazy cell backed by a 3-state
 //!   atomic and inline `UnsafeCell<MaybeUninit<T>>` storage. The value is
 //!   constructed exactly once into the inline storage, so no global allocator is
 //!   required. Replaces `std::sync::LazyLock`.
 //! * [`x86_has_avx`] / [`x86_has_avx2`] / [`x86_has_avx_fma`] / [`x86_has_avx2_fma`]
-//!   — x86 SIMD availability probes. Under the
+//!   – x86 SIMD availability probes. Under the
 //!   `std` feature these use the OS-backed `is_x86_feature_detected!`; without `std`
 //!   they fall back to compile-time `cfg!(target_feature = ...)`.
 
@@ -26,9 +26,9 @@ use portable_atomic::AtomicU8;
 /// Lazily-initialized value stored in inline (non-heap) storage.
 ///
 /// State machine encoded in [`AtomicU8`]:
-/// * `0` — uninitialized, idle
-/// * `1` — a thread is currently initializing
-/// * `2` — initialization complete; the value is live
+/// * `0` – uninitialized, idle
+/// * `1` – a thread is currently initializing
+/// * `2` – initialization complete; the value is live
 ///
 /// The stored value is constructed exactly once into the embedded
 /// `MaybeUninit<T>` and never mutated afterwards. Publication uses `Release`

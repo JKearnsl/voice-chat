@@ -26,7 +26,7 @@ fn compute_hp_coeffs(cutoff_hz: i32, fs: i32) -> ([i32; 3], [i32; 2]) {
 
 /// Native-integer high-pass `hp_cutoff` (C `hp_cutoff()` fixed-point form,
 /// sigproc_fix.c: the C entry point already takes `opus_int16 *in`). Filters
-/// `input` straight through the integer biquad — no f32 round-trip and no
+/// `input` straight through the integer biquad – no f32 round-trip and no
 /// temporary conversion buffer (issue #28).
 pub fn hp_cutoff_i16(
     input: &[i16],

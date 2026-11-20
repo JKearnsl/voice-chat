@@ -1618,7 +1618,7 @@ fn push_prefilter_history(mem: &mut [f32], frame: &[f32]) {
 }
 
 /// Padding appended to `w_x` to absorb any SIMD over-shoot past the last band.
-/// Sized to `MAX_PVQ_N` (352) — far larger than the widest SIMD access (16),
+/// Sized to `MAX_PVQ_N` (352) – far larger than the widest SIMD access (16),
 /// which is always loop-guarded (`while i + width <= n`). (Previously
 /// `MAX_PVQ_N * 8`, which had no access pattern justifying it.)
 const STRIDE_ACCESS_PAD: usize = crate::pvq::MAX_PVQ_N;
@@ -2065,7 +2065,7 @@ fn dynalloc_analysis_simple(
             follower[i] += (1.0 / 64.0) * analysis.leak_boost[i] as f32;
         }
     }
-    // effBytes>320 boost (C 1232) — trivial, kept
+    // effBytes>320 boost (C 1232) – trivial, kept
     if effective_bytes > 320 {
         let add = (1.5f32).min(1e-3 * (effective_bytes as f32 - 320.0));
         if start < end {
@@ -3417,7 +3417,7 @@ impl CeltDecoder {
         // The decode geometry requires frame_size == short_mdct_size << lm.
         // A non-matching size makes the lm search below fall back to lm=0,
         // which silently decodes garbage for large frames and indexes out of
-        // bounds for tiny ones — reject early (issue #27 deep scan).
+        // bounds for tiny ones – reject early (issue #27 deep scan).
         let mut lm_matched = false;
         for cand in 0..=mode.max_lm {
             if mode.short_mdct_size << cand == frame_size {
@@ -3718,7 +3718,7 @@ impl CeltDecoder {
             );
         }
         if silence {
-            // libopus celt_decoder.c:1530-1534 — silence frames carry no energy;
+            // libopus celt_decoder.c:1530-1534 – silence frames carry no energy;
             // force the long-term predictor to a noise floor so the next packet
             // decodes cleanly. Without this the decoder's `oldBandE` retains
             // the previous frame's energies and the next decode diverges, which
@@ -4027,7 +4027,7 @@ mod tests {
         let mode = modes::default_mode();
         let mut enc = CeltEncoder::new(mode, 1);
         // frame_size=48: lm-search fails, falls back to lm=0.
-        // forward() will panic — either on the input-size assertion (0.1.21+) or
+        // forward() will panic – either on the input-size assertion (0.1.21+) or
         // on the output write (0.1.19): "len is 48 but the index is 119".
         let pcm = vec![0.0f32; 48 + mode.overlap]; // supply ≥ frame_size samples
         let mut rc = RangeCoder::new_encoder(100);

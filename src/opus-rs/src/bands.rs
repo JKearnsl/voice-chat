@@ -1092,7 +1092,7 @@ fn quant_partition_encode(
         }
         cm
     } else {
-        // No split — dispatch to small-N specialized encoders or direct path
+        // No split – dispatch to small-N specialized encoders or direct path
         if n == 4 {
             return quant_partition_n4_encode(ctx, x, b, b_blocks, lowband, lm, gain, fill);
         }
@@ -2743,7 +2743,7 @@ pub fn denormalise_bands(
             let n = ((m.e_bands[i + 1] - m.e_bands[i]) as usize) << lm;
             let band_log = band_e[c * m.nb_ebands + i];
 
-            // Match C: celt_exp2_db(MIN32(32.f, lg)) — cap gain to prevent overflow
+            // Match C: celt_exp2_db(MIN32(32.f, lg)) – cap gain to prevent overflow
             let g = (2.0f32).powf(band_log.min(32.0));
             let src = &x[base..base + n];
             let dst = &mut freq[base..base + n];

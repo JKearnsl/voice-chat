@@ -53,7 +53,7 @@ const OPUS_MAX_FRAME: usize = 5760;
 /// Largest SILK packet at the internal rate: 60 ms at 16 kHz.
 const SILK_MAX_PACKET_SAMPLES: usize = 3 * silk::define::MAX_FRAME_LENGTH;
 /// Largest *single-frame* samples/channel (60 ms @ 48 kHz = 2880). The decoder's
-/// staging buffers hold one sub-frame at a time, so they're sized to this — not
+/// staging buffers hold one sub-frame at a time, so they're sized to this – not
 /// the full packet. (Halves the decoder footprint vs. a naive 5760/channel.)
 const OPUS_MAX_SUBFRAME: usize = 2880;
 /// Decoder per-sub-frame staging cap: `OPUS_MAX_SUBFRAME * max_channels`.
@@ -705,7 +705,7 @@ impl OpusEncoder {
         // interface does (OPUS_SET_BITRATE clamps to [500, 3000000];
         // complexity to [0, 10]). Unclamped extremes overflow the bitrate
         // arithmetic downstream (bitrate*6 in celt, `equiv*(90+complexity)`
-        // in the mode selection) — issue #27 deep scan.
+        // in the mode selection) – issue #27 deep scan.
         self.bitrate_bps = self.bitrate_bps.clamp(500, 3_000_000);
         self.complexity = self.complexity.clamp(0, 10);
         self.packet_loss_perc = self.packet_loss_perc.clamp(0, 100);
@@ -790,7 +790,7 @@ impl OpusEncoder {
         };
 
         // C opus_encoder.c:1525-1527: a budget representing less than 6 kb/s
-        // (9 kb/s for frames longer than 20 ms) cannot carry SILK — libopus
+        // (9 kb/s for frames longer than 20 ms) cannot carry SILK – libopus
         // switches to CELT-only mode, which codes it as a small valid packet
         // instead of a PLC placeholder (issue #46).
         let tiny_budget_rate: i64 = if frame_rate > 50 { 9000 } else { 6000 };
@@ -869,7 +869,7 @@ impl OpusEncoder {
         output[0] = toc;
 
         // C opus_encoder.c:1226-1243: a budget too small to code anything
-        // useful produces a TOC-only "PLC" packet — decoders conceal it as a
+        // useful produces a TOC-only "PLC" packet – decoders conceal it as a
         // loss. Encoding into 0-2 bytes would otherwise overflow the range
         // coder (issue #45). Under CBR the packet is padded to the nominal
         // size, exactly like libopus's opus_packet_pad.
@@ -1470,7 +1470,7 @@ impl OpusEncoder {
         self.rc.done();
 
         // C opus_encoder.c:2170-2179: "In the unlikely case that the SILK
-        // encoder busted its target, tell the decoder to call the PLC" — emit
+        // encoder busted its target, tell the decoder to call the PLC" – emit
         // a minimal packet with an EMPTY frame instead of failing hard. The
         // zero-length frame makes the decoder conceal (libopus pads the same
         // 2-byte packet with opus_packet_pad under CBR). With FEC the LBRR
@@ -2080,12 +2080,12 @@ impl OpusDecoder {
                         .copy_from_slice(&self.w_silk_out[..sub_output_len]);
 
                     // A SILK-only frame's redundancy is implicit (libopus
-                    // opus_decode_frame 452-479): no flag is coded — when bits
+                    // opus_decode_frame 452-479): no flag is coded – when bits
                     // are left for it, redundancy is on, `celt_to_silk` reads
                     // as one bit, and the frame's tail past the SILK layer is
                     // a 5 ms redundant CELT frame. Going to CELT it decodes
-                    // from a reset CELT state — which the next CELT frame
-                    // carries on — and its second half fades into the frame's
+                    // from a reset CELT state – which the next CELT frame
+                    // carries on – and its second half fades into the frame's
                     // last 2.5 ms (595-603). Coming from CELT it decodes from
                     // the old state, opens the frame and fades into its first
                     // 5 ms (608-617). Only the SILK-to-CELT direction counts
@@ -2105,7 +2105,7 @@ impl OpusDecoder {
                         // `dec.storage -= redundancy_bytes`.
                         rc.storage -= redundancy_bytes as u32;
                         if celt_to_silk {
-                            // From the old CELT state, before any reset — a
+                            // From the old CELT state, before any reset – a
                             // CELT-to-SILK switch's bridge (532-541).
                             self.decode_redundant(
                                 &payload[len - redundancy_bytes..],
@@ -2131,8 +2131,8 @@ impl OpusDecoder {
                     let ch = self.channels;
                     if has_tail && !celt_to_silk && f5 > 0 && sub_output_len >= f5 * ch {
                         // SILK to CELT: reset CELT, decode the redundant frame
-                        // with all bands from that fresh state — the next CELT
-                        // frame carries it on — and fade its second half into
+                        // with all bands from that fresh state – the next CELT
+                        // frame carries it on – and fade its second half into
                         // the frame's last 2.5 ms (595-603).
                         self.celt_dec.reset_state();
                         self.decode_redundant(
@@ -2700,8 +2700,8 @@ impl OpusDecoder {
 }
 
 impl OpusDecoder {
-    /// Decode one Opus frame of SILK audio — `duration_ms` at `internal_rate`
-    /// — into `w_silk_out[..api_len * channels]`, interleaved at the API rate.
+    /// Decode one Opus frame of SILK audio – `duration_ms` at `internal_rate`
+    /// – into `w_silk_out[..api_len * channels]`, interleaved at the API rate.
     ///
     /// A 40/60 ms payload carries 2/3 internal SILK frames in one range-coded
     /// stream; libopus loops silk_Decode until the full duration is produced,
@@ -3099,7 +3099,7 @@ fn frame_payloads(input: &[u8]) -> Result<FixedVec<&[u8], OPUS_MAX_PACKET_FRAMES
                 // VBR (V=1): the per-frame length fields for all frames
                 // except the last come first, then all frame payloads
                 // (RFC 6716 §3.2.1; libopus `opus_packet_parse_impl`).
-                // Interleaving length and data — as this used to — parsed
+                // Interleaving length and data – as this used to – parsed
                 // any libopus code-3 VBR packet wrong.
                 let mut cursor = 0usize;
                 let mut frame_bytes = 0usize;

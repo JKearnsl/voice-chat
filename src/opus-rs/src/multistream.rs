@@ -1,4 +1,4 @@
-//! Multistream Opus decode (channel mapping family 1 — RFC 7845 §5.1.1).
+//! Multistream Opus decode (channel mapping family 1 – RFC 7845 §5.1.1).
 //! Decode only. Every elementary stream is a plain 1- or 2-channel
 //! `OpusDecoder`; this module just demuxes and re-routes, mirroring
 //! libopus's `opus_multistream_decoder.c` (a wrapper, not a codec change).
@@ -44,8 +44,8 @@ impl ChannelMappingTable {
 
 /// Splits one leading self-delimited packet (RFC 6716 Appendix B) off
 /// `data`, returning `(packet, bytes_consumed)`. `packet` is a normal
-/// (non-self-delimited) Opus packet — decodable as-is by a standard
-/// decoder — reconstructed by excising the extra length field(s)
+/// (non-self-delimited) Opus packet – decodable as-is by a standard
+/// decoder – reconstructed by excising the extra length field(s)
 /// Appendix B framing injects versus normal framing (code 0/1/CBR-3:
 /// length is otherwise absent/implicit; code 2/VBR-3: the final frame's
 /// length is otherwise implicit). `bytes_consumed` counts the original
@@ -219,7 +219,7 @@ impl MultistreamDecoder {
             self.stream_scratch.clear();
             self.stream_scratch.resize(frame_size * ch, 0.0);
 
-            // RFC 6716 Appendix B: only the last sub-packet is unframed —
+            // RFC 6716 Appendix B: only the last sub-packet is unframed –
             // decode it directly. Every other sub-packet must first be
             // reconstructed into a normal packet (split_self_delimited
             // strips the injected Appendix B length field(s)).

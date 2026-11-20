@@ -164,7 +164,7 @@ pub fn silk_control_encoder(
 /// Port of `silk_setup_LBRR` (control_codec.c:403-423): track the
 /// packet-to-packet FEC state and derive the gain increase used when coding
 /// LBRR excitation. `lbrr_coded` is the (already decided) per-packet FEC flag
-/// — in libopus that is `encControl->LBRR_coded`, produced by opus_encoder.c's
+/// – in libopus that is `encControl->LBRR_coded`, produced by opus_encoder.c's
 /// `decide_fec()`.
 pub fn silk_setup_lbrr(ps_enc: &mut SilkEncoderState, lbrr_coded: i32) -> i32 {
     let lbrr_in_previous_packet = ps_enc.s_cmn.lbrr_enabled;

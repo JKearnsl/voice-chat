@@ -141,7 +141,7 @@ unsafe fn inner_prod_neon(x: &[f32], y: &[f32], n: usize) -> f32 {
     let mut sum = {
         // Reduce exactly like libopus's float `celt_inner_prod_neon`
         // (pitch_neon_intr.c): pairwise low+high, then a pairwise add of
-        // that — not `vaddvq_f32`, whose grouping differs in the last bits.
+        // that – not `vaddvq_f32`, whose grouping differs in the last bits.
         let lo = vget_low_f32(xy);
         let hi = vget_high_f32(xy);
         let paired = vadd_f32(lo, hi);

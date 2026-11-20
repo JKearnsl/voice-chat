@@ -339,7 +339,7 @@ impl Out<'_> {
         );
         w
     }
-    /// `label  [current device ▾]` — the face opens the device list below it.
+    /// `label  [current device ▾]` – the face opens the device list below it.
     pub(super) fn device_picker(
         &mut self,
         x: f32,

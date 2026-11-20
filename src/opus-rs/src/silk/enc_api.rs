@@ -874,7 +874,7 @@ pub fn silk_encode(
             ps_enc.s_cmn.lbrr_flags = [0; MAX_FRAMES_PER_PACKET];
 
             // NOTE: the per-frame stereo header is written further below (after
-            // VAD), once for every frame of the packet — matching libopus
+            // VAD), once for every frame of the packet – matching libopus
             // enc_API.c:443-448. Writing it only for frame 0 desynced the
             // bitstream of multi-frame stereo packets (issue #27).
         }
