@@ -1,0 +1,58 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+stages:
+  - update
+  - release
+
+default:
+  image: rust:1.98-bookworm
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends gh python3
+    - scripts/ci/setup.sh
+  cache:
+    key:
+      files:
+        - Cargo.lock
+    paths:
+      - .cargo/
+      - target/
+
+variables:
+  CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
+  CARGO_TARGET_DIR: "$CI_PROJECT_DIR/target"
+  CARGO_TERM_COLOR: never
+  GH_CONFIG_DIR: "$CI_PROJECT_DIR/.gh"
+  GIT_CONFIG_GLOBAL: "$CI_PROJECT_DIR/.gitconfig-ci"
+  HORIZON_GITHUB_TOKEN: "$GH_TOKEN"
+  SDK_REQUEST: nightly
+
+sdk_update:
+  stage: update
+  resource_group: voice-chat
+  timeout: 45m
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: manual
+  script:
+    - scripts/ci/update_sdk.sh
+  artifacts:
+    when: on_success
+    expire_in: 7 days
+    paths:
+      - target/horizon-mod/voice_chat.hmod
+
+release:
+  stage: release
+  resource_group: voice-chat
+  timeout: 45m
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: manual
+  script:
+    - scripts/ci/release.sh
