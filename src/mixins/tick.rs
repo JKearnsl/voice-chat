@@ -1,9 +1,10 @@
 fn voicechat_tick(game: &mut crate::game::Game<'_>) {
     use voice_chat::engine as vc;
+    crate::game::remote::voicechat_audio::ensure_installed();
     let Some(r) = game.remote.as_ref() else {
         return;
     };
-    if !game.native_on(vc::ID) || !r.joined || r.reconfiguring.is_some() {
+    if !game.on(vc::ID) || !r.joined || r.reconfiguring.is_some() {
         vc::tick(None, &|_| None);
         return;
     }
@@ -12,8 +13,16 @@ fn voicechat_tick(game: &mut crate::game::Game<'_>) {
         .level_players
         .iter()
         .filter_map(|(&id, &uuid)| {
-            let [x, y, z] = game.remote_entity_position(id)?;
-            Some((uuid, [x, y + vc::EYE_HEIGHT, z]))
+            let id = u32::try_from(id).ok()?;
+            let mob = game.mobs.iter().find(|mob| mob.id == id)?;
+            Some((
+                uuid,
+                [
+                    mob.position.x,
+                    mob.position.y + vc::EYE_HEIGHT,
+                    mob.position.z,
+                ],
+            ))
         })
         .collect();
     let listener = game.native_player().map(|p| vc::mix::Listener {

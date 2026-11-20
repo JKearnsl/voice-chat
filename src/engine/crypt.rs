@@ -1,30 +1,28 @@
 //! `Secret.encrypt` / `decrypt`: AES-128-GCM with a random 12 byte IV in
 //! front of the ciphertext and its 16 byte tag.
-use ring::aead::{AES_128_GCM, Aad, LessSafeKey, NONCE_LEN, Nonce, UnboundKey};
-use ring::rand::{SecureRandom, SystemRandom};
+use aes_gcm::aead::{AeadCore, OsRng};
+use aes_gcm::{AeadInPlace, Aes128Gcm, KeyInit, Nonce};
+
+const NONCE_LEN: usize = 12;
 
 pub struct Crypt {
-    key: LessSafeKey,
-    rng: SystemRandom,
+    key: Aes128Gcm,
 }
 
 impl Crypt {
     pub fn new(secret: &[u8; 16]) -> Self {
-        let key = UnboundKey::new(&AES_128_GCM, secret).expect("16 byte AES key");
         Self {
-            key: LessSafeKey::new(key),
-            rng: SystemRandom::new(),
+            key: Aes128Gcm::new_from_slice(secret).expect("16 byte AES key"),
         }
     }
 
     pub fn encrypt(&self, plain: &[u8]) -> Vec<u8> {
-        let mut iv = [0u8; NONCE_LEN];
-        self.rng.fill(&mut iv).expect("system randomness");
+        let iv = Aes128Gcm::generate_nonce(&mut OsRng);
         let mut out = Vec::with_capacity(NONCE_LEN + plain.len() + 16);
         out.extend_from_slice(&iv);
         let mut body = plain.to_vec();
         self.key
-            .seal_in_place_append_tag(Nonce::assume_unique_for_key(iv), Aad::empty(), &mut body)
+            .encrypt_in_place(&iv, b"", &mut body)
             .expect("sealing a packet");
         out.extend_from_slice(&body);
         out
@@ -35,14 +33,9 @@ impl Crypt {
         if payload.len() < NONCE_LEN + 16 {
             return None;
         }
-        let iv: [u8; NONCE_LEN] = payload[..NONCE_LEN].try_into().ok()?;
+        let iv = Nonce::from_slice(&payload[..NONCE_LEN]);
         let mut body = payload[NONCE_LEN..].to_vec();
-        let len = self
-            .key
-            .open_in_place(Nonce::assume_unique_for_key(iv), Aad::empty(), &mut body)
-            .ok()?
-            .len();
-        body.truncate(len);
+        self.key.decrypt_in_place(iv, b"", &mut body).ok()?;
         Some(body)
     }
 }

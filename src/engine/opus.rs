@@ -1,7 +1,7 @@
 //! Opus, from the vendored pure-Rust `opus-rs`: 48 kHz mono, 20 ms frames,
 //! as Simple Voice Chat codes them.
 
-use crate::opus_rs::{Application, OpusDecoder, OpusEncoder};
+use opus_rs::{Application, OpusDecoder, OpusEncoder};
 
 pub const SAMPLE_RATE: u32 = 48_000;
 /// 20 ms at 48 kHz.

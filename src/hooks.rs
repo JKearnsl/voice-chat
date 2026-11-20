@@ -1,4 +1,4 @@
-use crate::{config, engine as vc};
+use crate::engine as vc;
 use mod_api::{
     ClientHost, ConfigKind, Flow, Hooks, KeyRegistration, Registrar, RegistrationContext,
 };
@@ -36,12 +36,6 @@ impl Hooks for VoiceChat {
     ) {
         if event.config.mod_id == vc::ID && event.config.kind == ConfigKind::Client {
             config::reload(&event.config.text);
-        }
-    }
-
-    fn client_setup(&self, host: &mut dyn ClientHost, _: &mut mod_api::ClientSetupEvent) {
-        if let Some(language) = host.client_session().client_language() {
-            vc::set_language(&language);
         }
     }
 
@@ -131,7 +125,7 @@ impl Hooks for VoiceChat {
             match command {
                 vc::ui::Draw::Fill(rect, argb) => event.draw.fill(rect, argb),
                 vc::ui::Draw::Text(text, at, rgb, shadow) => {
-                    event.draw.text(&text, at, rgb, shadow);
+                    event.draw.text(&text, at, rgb | 0xFF00_0000, shadow);
                 }
                 vc::ui::Draw::Sprite { name, src, dst } => {
                     event.draw.sprite(name, src, dst, None);

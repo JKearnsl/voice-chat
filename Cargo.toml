@@ -6,21 +6,9 @@ license = "MIT"
 publish = false
 
 [dependencies]
+aes-gcm = "0.10"
 horizon-mod-api = { path = ".horizon/sdk/api/crates/horizon-mod-api" }
-ring = "0.17"
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-cpal = "0.16"
+opus-rs = { path = "src/opus-rs" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-ring = { version = "0.17", features = ["wasm32_unknown_unknown_js"] }
-
-[features]
-default = ["std", "heap"]
-std = []
-heap = ["std"]
-libm = []
-portable-atomic = []
-avx = []
-sse = []
-fma = []
+getrandom = { version = "0.2", features = ["js"] }

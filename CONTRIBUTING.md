@@ -21,6 +21,7 @@ Run the relevant checks before submitting:
 
 ```sh
 cargo test --offline
+cargo test --manifest-path src/opus-rs/Cargo.toml --offline
 cargo horizon-mod check
 cargo horizon-mod build
 ```

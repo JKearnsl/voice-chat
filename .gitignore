@@ -1,5 +1,6 @@
 .idea
 target/
 .horizon/
+.horizon-cache/
 __pycache__/
 *.pyc

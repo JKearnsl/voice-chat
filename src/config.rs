@@ -4,13 +4,12 @@ use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 
 const FILE: &str = "voice_chat-client.toml";
-const DEFAULTS: &str = "mode = \"ptt\"\nmuted = false\ndisabled = false\nvolume = 100\nmic_gain = 100\nthreshold = -50\nprotocol = \"auto\"\nhud = true\ninput_device = \"\"\noutput_device = \"\"\nplayer_volumes = \"\"\n";
 
 static VALUES: LazyLock<Mutex<HashMap<String, String>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
 pub fn declaration() -> Config {
-    Config::new(vc::ID, ConfigKind::Client, DEFAULTS)
+    Config::new(vc::ID, ConfigKind::Client, &vc::Settings::default_config())
 }
 
 pub fn get(key: &str) -> Option<String> {
@@ -70,5 +69,19 @@ pub fn save(host: &dyn Host) {
     let path = ConfigPath::new(FILE).expect("valid config path");
     if let Err(e) = host.config_files().write(&path, text.as_bytes()) {
         eprintln!("voice_chat: saving settings: {e}");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn declared_defaults_match_the_settings_defaults() {
+        let config = declaration();
+        let values = parse(&config.default);
+        let loaded = vc::Settings::load(&|key| values.get(key).cloned());
+        assert_eq!(config.file, FILE);
+        assert_eq!(loaded, vc::Settings::default());
     }
 }

@@ -5,7 +5,7 @@ fn voicechat_hud(
 ) {
     use horizon_client::extras::Corner;
     use voice_chat::engine as vc;
-    if !game.native_on(vc::ID) {
+    if !game.on(vc::ID) {
         return;
     }
     let draw_face = |batch: &mut horizon_client::hud::HudBatch,
@@ -32,9 +32,9 @@ fn voicechat_hud(
         if let Some(group) = vc::hud_group() {
             let icon = group
                 .icon
-                .filter(|&name| game.native_sprite_size(name).is_some());
+                .filter(|&name| game.gui_sprite_pixels(name).is_some());
             let icon_w = if icon.is_some() { 12.0 } else { 0.0 };
-            let w = icon_w + game.native_text_width(&group.text) + 4.0;
+            let w = icon_w + game.native_text_width(batch, &group.text) + 4.0;
             let (x, y) = corners.place(Corner::TopLeft, w, 12.0);
             game.native_fill(batch, [x, y, w, 12.0], 0x9000_0000);
             if let Some(name) = icon {
@@ -43,18 +43,19 @@ fn voicechat_hud(
                     name,
                     [0.0, 0.0, 16.0, 16.0],
                     [x + 1.0, y + 1.0, 10.0, 10.0],
+                    None,
                 );
             }
             game.native_text(
                 batch,
                 &group.text,
                 [x + icon_w + 2.0, y + 2.0],
-                group.rgb,
+                group.rgb | 0xFF00_0000,
                 true,
             );
         }
         let mute_badge = game
-            .native_sprite_size("voice_chat:gui/icon_mute")
+            .gui_sprite_pixels("voice_chat:gui/icon_mute")
             .is_some();
         let max_heads = (batch.height / 32.0).floor().max(3.0) as usize;
         let heads = vc::hud_heads(max_heads);
@@ -68,7 +69,7 @@ fn voicechat_hud(
             })
             .unwrap_or_default();
         for head in heads {
-            let name_w = game.native_text_width(&head.name);
+            let name_w = game.native_text_width(batch, &head.name);
             let w = name_w + 24.0;
             let (x, y) = corners.place(Corner::TopLeft, w, 16.0);
             game.native_fill(batch, [x, y, w, 16.0], 0x7000_0000);
@@ -99,11 +100,7 @@ fn voicechat_hud(
                 0x70AA_AAAA
             };
             game.native_fill(batch, [x, y, 16.0, 1.0], frame);
-            game.native_fill(
-                batch,
-                [x, y + 15.0, 16.0, 1.0],
-                if head.talking { frame } else { 0x7000_0000 },
-            );
+            game.native_fill(batch, [x, y + 15.0, 16.0, 1.0], frame);
             game.native_fill(batch, [x, y, 1.0, 16.0], frame);
             game.native_fill(batch, [x + 15.0, y, 1.0, 16.0], frame);
             if head.muted && mute_badge {
@@ -113,13 +110,14 @@ fn voicechat_hud(
                     "voice_chat:gui/icon_mute",
                     [0.0, 0.0, 16.0, 16.0],
                     [x + 8.0, y + 8.0, 8.0, 8.0],
+                    None,
                 );
             }
             game.native_text(
                 batch,
                 &head.name,
                 [x + 20.0, y + 4.0],
-                if head.talking { 0xFFFFFF } else { 0xAAAAAA },
+                if head.talking { 0xFFFF_FFFF } else { 0xFFAA_AAAA },
                 true,
             );
         }
@@ -130,9 +128,9 @@ fn voicechat_hud(
     for line in vc::hud() {
         let icon = line
             .icon
-            .filter(|&name| game.native_sprite_size(name).is_some());
+            .filter(|&name| game.gui_sprite_pixels(name).is_some());
         let icon_w = if icon.is_some() { 12.0 } else { 0.0 };
-        let w = icon_w + game.native_text_width(&line.text) + 4.0;
+        let w = icon_w + game.native_text_width(batch, &line.text) + 4.0;
         let (x, y) = corners.place(Corner::BottomLeft, w, 12.0);
         game.native_fill(batch, [x, y, w, 12.0], 0x9000_0000);
         if let Some(name) = icon {
@@ -141,13 +139,14 @@ fn voicechat_hud(
                 name,
                 [0.0, 0.0, 16.0, 16.0],
                 [x + 1.0, y + 1.0, 10.0, 10.0],
+                None,
             );
         }
         game.native_text(
             batch,
             &line.text,
             [x + icon_w + 2.0, y + 2.0],
-            line.rgb,
+            line.rgb | 0xFF00_0000,
             true,
         );
     }

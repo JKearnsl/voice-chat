@@ -8,7 +8,6 @@
   An unofficial native client for the Simple Voice Chat protocol on Horizon.
 </p>
 
-Talk with players on compatible servers through proximity voice, private groups, and a native in-game interface.
 
 ## Features
 
@@ -17,10 +16,35 @@ Talk with players on compatible servers through proximity voice, private groups,
 - Push-to-talk and voice activation with a live microphone meter.
 - Password-protected groups, group types, and a group member roster.
 - Per-player and per-source volume controls, including compatible modded audio sources.
-- Input and output device selection without rejoining the server.
 - Speaking indicators, player heads, and group icons in the HUD.
 - Interface localization in English, Russian, Ukrainian, German, Spanish, French, Brazilian Portuguese, Simplified Chinese, Polish, and Italian.
-- Vanilla-style controls, tooltips, and UI feedback sounds.
+
+## Interface
+
+Press **V** to open the voice controls
+
+![Voice Chat main menu with a four-player group roster](docs/screenshots/main.png)
+
+<details>
+<summary><strong>Settings, groups, and volume controls</strong></summary>
+
+**Settings** — select audio devices, adjust voice levels and the activation threshold, and review hotkeys.
+
+![Audio settings and activation meter](docs/screenshots/settings.png)
+
+**Groups** — see your current group, its members, and other available groups.
+
+![Current and available voice groups](docs/screenshots/groups.png)
+
+**Create group** — set a name, an optional password, and how the group interacts with nearby players.
+
+![Group creation form](docs/screenshots/create-group.png)
+
+**Player volumes** — search players and audio sources, then adjust each source with a slider.
+
+![Per-player and audio-source volume sliders](docs/screenshots/player-volumes.png)
+
+</details>
 
 ## Installation
 
@@ -36,11 +60,12 @@ The server's voice UDP port must be reachable. A server without Simple Voice Cha
 The native package currently targets:
 
 - Game: **26.3**
-- Horizon revision: `0b14f8acfd97fa2c750e42795249dcc981178ca4`
+- Horizon revision: `dd67b76ff23e28c6d8e21859df600d31572f81a0`
 - Horizon Mixins revision: `e59da9094f0c2fdda6c627fe9eff22dec6a906f0`
 - Simple Voice Chat protocol versions: **20 and 21**
 
-Native compatibility is pinned because the mod currently accesses game internals beyond Horizon's stable hook points. Update and test these pins before targeting another Horizon revision. See `compatibility.json` for the current values.
+Native compatibility is pinned because the mod currently accesses game internals beyond Horizon's stable hook points.
+Update and test these pins before targeting another Horizon revision. See `horizon-mod.toml` for the current values.
 
 ## Building from source
 
@@ -48,6 +73,7 @@ Run the engine checks:
 
 ```sh
 cargo test --offline
+cargo test --manifest-path src/opus-rs/Cargo.toml --offline
 cargo horizon-mod check
 ```
 

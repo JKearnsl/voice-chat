@@ -10,7 +10,7 @@ fn voicechat_name_tag(
     out: &mut Vec<horizon_client::mesher::Vertex>,
 ) {
     use voice_chat::engine as vc;
-    if !game.native_on(vc::ID) {
+    if !game.on(vc::ID) {
         return;
     }
     let Some((text, lift)) = lines.last() else {
@@ -23,7 +23,7 @@ fn voicechat_name_tag(
     let Some(sprite) = game.gui.atlas.sprites.get(icon).copied() else {
         return;
     };
-    let (yaw, pitch) = if game.camera_type == crate::game::perspective::CameraType::ThirdPersonFront
+    let (yaw, pitch) = if game.camera_type == horizon_client::camera::CameraType::ThirdPersonFront
     {
         (game.yaw + 180.0, -game.pitch)
     } else {
@@ -38,13 +38,21 @@ fn voicechat_name_tag(
     let name_w = horizon_client::hud::HudBatch::text_width(&game.gui.atlas, &plain);
     let x = -name_w / 2.0 - 10.0;
     let y = if plain == "deadmau5" { -10.0 } else { 0.0 };
-    let mut batch = horizon_client::hud::HudBatch::new([1, 1]);
+    let mut batch = horizon_client::hud::HudBatch::new([1, 1], game.settings.gui_scale_inputs());
     if background {
         batch.fill(&game.gui.atlas, x - 1.0, y - 1.0, 10.0, 10.0, 0x3F00_0000);
+        batch.fill(
+            &game.gui.atlas,
+            name_w / 2.0,
+            y - 1.0,
+            10.0,
+            10.0,
+            0x3F00_0000,
+        );
     }
     batch.rect_uv(x, y, 8.0, 8.0, sprite, text_alpha << 24 | 0xFF_FFFF);
     for (i, quad) in batch.vertices.as_chunks::<6>().0.iter().enumerate() {
-        let shift = if background && i == 0 {
+        let shift = if background && i < 2 {
             forward.as_vec3() * 0.002
         } else {
             glam::Vec3::ZERO
