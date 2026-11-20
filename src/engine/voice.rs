@@ -116,11 +116,23 @@ impl Voice {
         self.apply_controls();
     }
 
-    /// Applies the selected devices on the audio worker, closing its current
-    /// streams before opening replacements.
+    /// Closes audio while voice chat is disabled, or applies the selected devices.
     pub(super) fn restart_audio(&mut self) {
         self.device_list = None;
         self.mic.clear();
+        if self.settings.disabled {
+            if let Some(session) = &mut self.session {
+                session.audio = None;
+            }
+            self.mic.clear();
+            self.shared.transmitting.store(false, Ordering::Relaxed);
+            self.shared
+                .mic_level
+                .store(IDLE_LEVEL_DB.to_bits(), Ordering::Relaxed);
+            *self.devices.lock().unwrap() = Devices::default();
+            self.mixer.lock().unwrap().clear();
+            return;
+        }
         if !SOUND_CARD.load(Ordering::Relaxed) {
             return;
         }
@@ -392,14 +404,7 @@ pub fn key(which: Key, down: bool) {
             v.save();
             v.send_state();
         }
-        Key::Disable if down => {
-            v.settings.disabled = !v.settings.disabled;
-            v.save();
-            v.send_state();
-            if v.settings.disabled {
-                v.mixer.lock().unwrap().clear();
-            }
-        }
+        Key::Disable if down => v.click(2),
         _ => {}
     }
 }
@@ -424,14 +429,16 @@ pub fn load(get: &dyn Fn(&str) -> Option<String>) {
 /// Reloads settings changed outside the mod and applies device and connection changes.
 pub fn reload(get: &dyn Fn(&str) -> Option<String>) {
     let mut v = voice();
-    let devices = (
+    let audio = (
+        v.settings.disabled,
         v.settings.input_device.clone(),
         v.settings.output_device.clone(),
     );
     v.settings = Settings::load(get);
     v.apply_controls();
-    if devices
+    if audio
         != (
+            v.settings.disabled,
             v.settings.input_device.clone(),
             v.settings.output_device.clone(),
         )

@@ -1,10 +1,11 @@
 use super::hud::*;
 use super::*;
+use crate::audio::{AudioBackend, AudioStream, Devices, install_backend};
 use crate::net::{IDLE_LEVEL_DB, Mode, Shared, Status};
 use crate::proto::{PlayerState, Secret};
 use std::collections::HashMap;
-use std::sync::Mutex;
-use std::sync::atomic::Ordering;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 fn world(address: &str) -> World<'_> {
@@ -18,6 +19,53 @@ fn world(address: &str) -> World<'_> {
 
 /// The tests share the one voice chat.
 static SERIAL: Mutex<()> = Mutex::new(());
+
+struct AudioProbe {
+    starts: AtomicUsize,
+    live: AtomicUsize,
+}
+
+static AUDIO_PROBE: AudioProbe = AudioProbe {
+    starts: AtomicUsize::new(0),
+    live: AtomicUsize::new(0),
+};
+
+struct ProbeStream;
+
+impl AudioStream for ProbeStream {
+    fn restart(&self, _input: Option<String>, _output: Option<String>) -> Result<(), String> {
+        Ok(())
+    }
+}
+
+impl Drop for ProbeStream {
+    fn drop(&mut self) {
+        AUDIO_PROBE.live.fetch_sub(1, Ordering::Relaxed);
+    }
+}
+
+impl AudioBackend for AudioProbe {
+    fn start(
+        &self,
+        _mixer: Arc<Mutex<crate::mix::Mixer>>,
+        _mic: Arc<crate::audio::MicQueue>,
+        devices: Arc<Mutex<Devices>>,
+        _input: Option<String>,
+        _output: Option<String>,
+    ) -> Result<Box<dyn AudioStream>, String> {
+        self.starts.fetch_add(1, Ordering::Relaxed);
+        self.live.fetch_add(1, Ordering::Relaxed);
+        *devices.lock().unwrap() = Devices {
+            input: Ok("test microphone".into()),
+            output: Ok("test speakers".into()),
+        };
+        Ok(Box::new(ProbeStream))
+    }
+
+    fn list_devices(&self) -> (Vec<String>, Vec<String>) {
+        Default::default()
+    }
+}
 
 #[test]
 fn asks_for_the_secret_with_both_versions() {
@@ -768,4 +816,56 @@ fn pick_device_and_meter_click_update_settings_offline() {
     assert_eq!(voice().settings.threshold, -40);
     voice().menu.end_drag();
     use_sound_card(true);
+}
+
+#[test]
+fn disabling_voice_chat_closes_audio_for_every_control() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    let none = |_: &str| None;
+    tick(None, &none);
+    tick(Some(world("audio-lifecycle.example.net")), &none);
+    install_backend(&AUDIO_PROBE);
+    {
+        let mut v = voice();
+        v.settings.disabled = false;
+        v.apply_controls();
+        v.restart_audio();
+    }
+    assert_eq!(AUDIO_PROBE.live.load(Ordering::Relaxed), 1);
+    assert_eq!(AUDIO_PROBE.starts.load(Ordering::Relaxed), 1);
+
+    voice().mic.push(&[0.25; 32]);
+    voice().shared.transmitting.store(true, Ordering::Relaxed);
+    voice()
+        .shared
+        .mic_level
+        .store((-20.0f32).to_bits(), Ordering::Relaxed);
+    key(Key::Disable, true);
+    assert!(voice().settings.disabled);
+    assert!(voice().session.as_ref().unwrap().audio.is_none());
+    assert_eq!(AUDIO_PROBE.live.load(Ordering::Relaxed), 0);
+    assert!(voice().mic.samples.lock().unwrap().is_empty());
+    assert!(!voice().shared.transmitting.load(Ordering::Relaxed));
+    assert_eq!(voice().shared.level(), IDLE_LEVEL_DB);
+
+    key(Key::Disable, true);
+    assert_eq!(AUDIO_PROBE.live.load(Ordering::Relaxed), 1);
+    assert_eq!(AUDIO_PROBE.starts.load(Ordering::Relaxed), 2);
+    voice().menu_action(ui::Action::Disable);
+    assert_eq!(AUDIO_PROBE.live.load(Ordering::Relaxed), 0);
+    voice().menu_action(ui::Action::Disable);
+    assert_eq!(AUDIO_PROBE.live.load(Ordering::Relaxed), 1);
+    assert_eq!(AUDIO_PROBE.starts.load(Ordering::Relaxed), 3);
+
+    reload(&|key| (key == "disabled").then(|| "true".into()));
+    assert!(voice().settings.disabled);
+    assert_eq!(AUDIO_PROBE.live.load(Ordering::Relaxed), 0);
+    reload(&|key| (key == "disabled").then(|| "false".into()));
+    assert!(!voice().settings.disabled);
+    assert_eq!(AUDIO_PROBE.live.load(Ordering::Relaxed), 1);
+    assert_eq!(AUDIO_PROBE.starts.load(Ordering::Relaxed), 4);
+
+    tick(None, &none);
+    assert_eq!(AUDIO_PROBE.live.load(Ordering::Relaxed), 0);
+    take_store();
 }

@@ -16,6 +16,9 @@ impl Voice {
         if before != (self.settings.muted, self.settings.disabled) {
             self.send_state();
         }
+        if before.1 != self.settings.disabled {
+            self.restart_audio();
+        }
     }
 
     pub(super) fn status_line(&self) -> (String, u32) {

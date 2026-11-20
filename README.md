@@ -55,6 +55,14 @@ Press **V** to open the voice controls
 
 The server's voice UDP port must be reachable. A server without Simple Voice Chat cannot provide voice connectivity.
 
+## Privacy and local data
+
+While voice chat is enabled, the microphone remains open for the live level meter, including in push-to-talk mode. In push-to-talk mode, audio is sent only while PTT or Whisper is held, plus a short release tail. Captured audio is not written to disk. Disable Voice Chat closes the audio streams and clears queued microphone samples.
+
+Voice traffic uses client-server UDP only, with no peer-to-peer connections. The Simple Voice Chat server selects the voice host and port; an empty voice host falls back to the game server's address.
+
+The local `voice_chat-client.toml` stores audio and interface preferences, selected device names, per-player/source UUID volume overrides, and the negotiated protocol version for each server address. It does not store audio, group passwords, or voice encryption secrets.
+
 ## Compatibility
 
 The native package currently targets:

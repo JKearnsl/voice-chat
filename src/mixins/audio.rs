@@ -24,6 +24,7 @@ struct CpalBackend;
 struct CpalAudio {
     stop: Arc<AtomicBool>,
     restart: mpsc::Sender<DeviceChoice>,
+    worker: Option<std::thread::JoinHandle<()>>,
 }
 
 impl CpalAudio {
@@ -37,7 +38,7 @@ impl CpalAudio {
         let stop = Arc::new(AtomicBool::new(false));
         let flag = stop.clone();
         let (restart, commands) = mpsc::channel();
-        std::thread::Builder::new()
+        let worker = std::thread::Builder::new()
             .name("voice_chat-audio".into())
             .spawn(move || {
                 let host = cpal::default_host();
@@ -72,10 +73,16 @@ impl CpalAudio {
                         scanned = Instant::now();
                     }
                 }
+                drop(input);
+                drop(output);
                 mic.clear();
             })
             .map_err(|e| format!("starting audio thread: {e}"))?;
-        Ok(Self { stop, restart })
+        Ok(Self {
+            stop,
+            restart,
+            worker: Some(worker),
+        })
     }
 
     pub fn restart(&self, input: Option<String>, output: Option<String>) -> Result<(), String> {
@@ -112,6 +119,9 @@ impl AudioBackend for CpalBackend {
 impl Drop for CpalAudio {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::Relaxed);
+        if let Some(worker) = self.worker.take() {
+            let _ = worker.join();
+        }
     }
 }
 
