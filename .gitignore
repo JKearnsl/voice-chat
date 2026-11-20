@@ -4,6 +4,5 @@ target/
 .horizon-cache/
 .cargo/
 .gh/
-.gitconfig-ci
 __pycache__/
 *.pyc

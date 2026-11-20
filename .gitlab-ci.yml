@@ -27,7 +27,7 @@ variables:
   CARGO_TARGET_DIR: "$CI_PROJECT_DIR/target"
   CARGO_TERM_COLOR: never
   GH_CONFIG_DIR: "$CI_PROJECT_DIR/.gh"
-  GIT_CONFIG_GLOBAL: "$CI_PROJECT_DIR/.gitconfig-ci"
+  GIT_CONFIG_GLOBAL: "/tmp/voice-chat-gitconfig"
   HORIZON_GITHUB_TOKEN: "$GH_TOKEN"
   SDK_REQUEST: nightly
 
