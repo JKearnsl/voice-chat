@@ -10,6 +10,8 @@ stages:
 
 default:
   image: rust:1.98-bookworm
+  tags:                                                                                                                                                                                                                       
+    - docker
   before_script:
     - apt-get update -qq
     - apt-get install -y --no-install-recommends gh python3
