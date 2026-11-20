@@ -95,6 +95,6 @@ and AI-assisted development rules.
 
 Project code and original assets are available under the [MIT Licence](LICENSE).
 
-The vendored `opus-rs` code is covered by its BSD-3-Clause licence in `OPUS_COPYING`.
+The vendored `opus-rs` code is covered by its BSD-3-Clause licence in `COPYING.OPUS`.
 
 Simple Voice Chat is copyright Max Henkel and marked All Rights Reserved. This project is unofficial, is not affiliated with Max Henkel, and does not include Simple Voice Chat's original assets. The name is used only to describe protocol compatibility.
