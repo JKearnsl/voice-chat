@@ -29,6 +29,7 @@ fi
 [[ "$pin" =~ ^[0-9a-f]{40}$ ]]
 
 export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
+rustup target add wasm32-unknown-unknown
 marker="$CARGO_HOME/.horizon-mod-pin"
 current=""
 if [[ -f "$marker" ]]; then
