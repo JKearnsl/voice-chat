@@ -16,6 +16,7 @@ if [[ "$old" == "$new" ]]; then
     exit 0
 fi
 
+cargo horizon-mod check
 short=${new:0:7}
 branch="fix/sdk-$short"
 github=https://github.com/JKearnsl/voice-chat.git
@@ -35,6 +36,7 @@ git commit -m "fix: support Horizon SDK $short"
 
 gh auth setup-git --hostname github.com
 git push -u "$github" "$branch"
+scripts/ci/github_status.sh success "$(git rev-parse HEAD)"
 
 body=$(mktemp)
 trap 'rm -f "$body"' EXIT

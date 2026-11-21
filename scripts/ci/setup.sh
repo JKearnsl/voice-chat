@@ -1,12 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${GH_TOKEN:?Set GH_TOKEN to a GitHub token with contents and pull requests write access}"
-
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$ROOT"
 
-pin=$(gh release view nightly --repo horizon-rust/horizon --json targetCommitish --jq .targetCommitish)
+project_pin=$(python3 -c 'import tomllib; print(tomllib.load(open("horizon-mod.toml", "rb"))["native"]["horizon"])')
+request=${SDK_REQUEST:-$project_pin}
+if [[ "$request" == nightly ]]; then
+    if [[ -n "${GH_TOKEN:-}" ]]; then
+        pin=$(gh release view nightly --repo horizon-rust/horizon --json targetCommitish --jq .targetCommitish)
+    else
+        pin=$(python3 - <<'PY'
+import json
+import urllib.request
+
+request = urllib.request.Request(
+    "https://api.github.com/repos/horizon-rust/horizon/releases/tags/nightly",
+    headers={"User-Agent": "voice-chat-ci"},
+)
+with urllib.request.urlopen(request) as response:
+    print(json.load(response)["target_commitish"])
+PY
+)
+    fi
+else
+    pin=$request
+fi
 [[ "$pin" =~ ^[0-9a-f]{40}$ ]]
 
 export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
@@ -22,6 +41,6 @@ if [[ ! -x "$CARGO_HOME/bin/cargo-horizon-mod" || "$current" != "$pin" ]]; then
 fi
 
 [[ -x "$CARGO_HOME/bin/cargo-horizon-mod" ]]
-project_pin=$(python3 -c 'import tomllib; print(tomllib.load(open("horizon-mod.toml", "rb"))["native"]["horizon"])')
 cargo horizon-mod update --horizon "$project_pin"
+cargo horizon-mod check
 printf 'cargo-horizon-mod pinned to %s\n' "$pin"

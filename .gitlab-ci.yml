@@ -1,27 +1,33 @@
 workflow:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
     - when: never
 
 stages:
+  - check
   - update
   - release
 
 default:
   image: rust:1.98-bookworm
-  tags:                                                                                                                                                                                                                       
+  tags:
     - docker
   before_script:
     - apt-get update -qq
     - apt-get install -y --no-install-recommends gh python3
     - scripts/ci/setup.sh
+  after_script:
+    - scripts/ci/github_status.sh "$CI_JOB_STATUS"
   cache:
     key:
       files:
         - Cargo.lock
     paths:
       - .cargo/
+      - .horizon/
       - target/
 
 variables:
@@ -31,17 +37,32 @@ variables:
   GH_CONFIG_DIR: "$CI_PROJECT_DIR/.gh"
   GIT_CONFIG_GLOBAL: "/tmp/voice-chat-gitconfig"
   HORIZON_GITHUB_TOKEN: "$GH_TOKEN"
-  SDK_REQUEST: nightly
+
+verify:
+  stage: check
+  resource_group: voice-chat
+  timeout: 45m
+  script:
+    - scripts/ci/github_status.sh pending
+    - scripts/ci/verify.sh
+  artifacts:
+    when: on_success
+    expire_in: 7 days
+    paths:
+      - target/horizon-mod/voice_chat.hmod
 
 sdk_update:
   stage: update
+  variables:
+    SDK_REQUEST: nightly
   resource_group: voice-chat
   timeout: 45m
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "main"'
       when: manual
   script:
+    - scripts/ci/github_status.sh pending
     - scripts/ci/update_sdk.sh
   artifacts:
     when: on_success
@@ -54,7 +75,8 @@ release:
   resource_group: voice-chat
   timeout: 45m
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "main"'
       when: manual
   script:
+    - scripts/ci/github_status.sh pending
     - scripts/ci/release.sh

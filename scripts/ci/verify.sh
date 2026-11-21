@@ -6,6 +6,7 @@ cd "$ROOT"
 
 trap 'rm -f src/opus-rs/Cargo.lock' EXIT
 cargo fetch --locked
+cargo fmt --check
 cargo test --offline
 cargo test --manifest-path src/opus-rs/Cargo.toml --offline
 cargo clippy --offline --all-targets -- -D warnings
