@@ -55,7 +55,7 @@ verify:
 sdk_update:
   stage: update
   variables:
-    SDK_REQUEST: nightly
+    SDK_REQUEST: stable
   resource_group: voice-chat
   timeout: 45m
   rules:

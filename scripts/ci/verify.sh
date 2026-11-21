@@ -5,6 +5,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$ROOT"
 
 trap 'rm -f src/opus-rs/Cargo.lock' EXIT
+python3 -m unittest discover -s scripts/ci -p 'test_*.py'
 cargo fetch --locked
 cargo fmt --check
 cargo test --offline

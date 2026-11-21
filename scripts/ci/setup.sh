@@ -6,27 +6,10 @@ cd "$ROOT"
 
 project_pin=$(python3 -c 'import tomllib; print(tomllib.load(open("horizon-mod.toml", "rb"))["native"]["horizon"])')
 request=${SDK_REQUEST:-$project_pin}
-if [[ "$request" == nightly ]]; then
-    if [[ -n "${GH_TOKEN:-}" ]]; then
-        pin=$(gh release view nightly --repo horizon-rust/horizon --json targetCommitish --jq .targetCommitish)
-    else
-        pin=$(python3 - <<'PY'
-import json
-import urllib.request
-
-request = urllib.request.Request(
-    "https://api.github.com/repos/horizon-rust/horizon/releases/tags/nightly",
-    headers={"User-Agent": "voice-chat-ci"},
-)
-with urllib.request.urlopen(request) as response:
-    print(json.load(response)["target_commitish"])
-PY
-)
-    fi
-else
-    pin=$request
-fi
+pin=$(python3 scripts/ci/resolve_sdk.py "$request")
 [[ "$pin" =~ ^[0-9a-f]{40}$ ]]
+mkdir -p "$ROOT/.horizon"
+printf '%s\n' "$pin" > "$ROOT/.horizon/sdk-pin-$request"
 
 export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
 rustup target add wasm32-unknown-unknown
@@ -38,7 +21,8 @@ if [[ -f "$marker" ]]; then
 fi
 
 if [[ ! -x "$CARGO_HOME/bin/cargo-horizon-mod" || "$current" != "$pin" ]]; then
-    cargo install --force --locked --git https://github.com/horizon-rust/horizon --rev "$pin" cargo-horizon-mod
+    cargo install --force --locked --git https://github.com/horizon-rust/horizon --rev "$pin" \
+        --target-dir "$CARGO_HOME/horizon-tooling/$pin" cargo-horizon-mod
     printf '%s\n' "$pin" > "$marker"
 fi
 

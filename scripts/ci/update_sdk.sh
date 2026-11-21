@@ -9,7 +9,15 @@ read_pin() {
 }
 
 old=$(read_pin)
-cargo horizon-mod update --horizon "${SDK_REQUEST:-nightly}"
+request=${SDK_REQUEST:-stable}
+pin_file="$ROOT/.horizon/sdk-pin-$request"
+if [[ -f "$pin_file" ]]; then
+    pin=$(<"$pin_file")
+else
+    pin=$(python3 scripts/ci/resolve_sdk.py "$request")
+fi
+python3 scripts/ci/resolve_sdk.py "$pin" --base "$old" >/dev/null
+cargo horizon-mod update --horizon "$pin"
 new=$(read_pin)
 if [[ "$old" == "$new" ]]; then
     printf 'Voice Chat already targets %s\n' "$new"
