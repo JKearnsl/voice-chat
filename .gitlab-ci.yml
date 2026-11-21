@@ -25,6 +25,7 @@ default:
     key:
       files:
         - Cargo.lock
+      prefix: voice-chat-v2
     paths:
       - .horizon/
       - target/
