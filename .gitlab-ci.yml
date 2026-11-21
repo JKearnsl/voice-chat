@@ -22,6 +22,7 @@ default:
   after_script:
     - scripts/ci/github_status.sh "$CI_JOB_STATUS"
   cache:
+    when: always
     key:
       files:
         - Cargo.lock

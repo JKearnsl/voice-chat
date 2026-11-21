@@ -30,6 +30,7 @@ fi
 
 export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
 rustup target add wasm32-unknown-unknown
+rustup component add rustfmt clippy
 marker="$CARGO_HOME/.horizon-mod-pin"
 current=""
 if [[ -f "$marker" ]]; then
