@@ -11,7 +11,7 @@
 
 ## Features
 
-- Simple Voice Chat 2.6.x and 2.7 protocol support.
+- Simple Voice Chat 2.6.x and 2.7.x protocol support.
 - Proximity audio with distance attenuation and stereo positioning.
 - Push-to-talk and voice activation with a live microphone meter.
 - Password-protected groups, group types, and a group member roster.
@@ -65,15 +65,11 @@ The local `voice_chat-client.toml` stores audio and interface preferences, selec
 
 ## Compatibility
 
-The native package currently targets:
+- A server running Simple Voice Chat 2.6.x or 2.7.x is required. The protocol version is negotiated automatically for each server.
+- The Simple Voice Chat client mod is not required.
+- The native package must match the Horizon build used by the instance. The current target is declared in `horizon-mod.toml` and validated during the build.
 
-- Game: **26.3**
-- Horizon revision: `5ef7734fdd854add5efd6817178be3c988d8d050`
-- Horizon Mixins revision: `e59da9094f0c2fdda6c627fe9eff22dec6a906f0`
-- Simple Voice Chat protocol versions: **20 and 21**
-
-Native compatibility is pinned because the mod currently accesses game internals beyond Horizon's stable hook points.
-Update and test these pins before targeting another Horizon revision. See `horizon-mod.toml` for the current values.
+CI checks Stable Horizon SDK updates and prepares a draft pull request after the test suite and package validation pass.
 
 ## Building from source
 
