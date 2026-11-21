@@ -2,7 +2,6 @@
 target/
 .horizon/
 .horizon-cache/
-.cargo/
 .gh/
 __pycache__/
 *.pyc

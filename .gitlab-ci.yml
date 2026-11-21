@@ -26,12 +26,11 @@ default:
       files:
         - Cargo.lock
     paths:
-      - .cargo/
       - .horizon/
       - target/
 
 variables:
-  CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
+  CARGO_HOME: "$CI_PROJECT_DIR/.horizon/cargo"
   CARGO_TARGET_DIR: "$CI_PROJECT_DIR/target"
   CARGO_TERM_COLOR: never
   GH_CONFIG_DIR: "$CI_PROJECT_DIR/.gh"
